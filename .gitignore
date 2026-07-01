@@ -1,0 +1,12 @@
+# Host build outputs
+run
+*.o
+.DS_Store
+
+# Large downloads
+sdk/
+models/
+
+# Target build outputs
+deploy/hello
+deploy/tinystories
