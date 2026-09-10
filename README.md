@@ -52,6 +52,8 @@ The local device handles the terminal interface, session state, and eventually l
 
 Ellamma was initially developed and tested on an iPhone 4S running iOS 6.1.3, but the project is not tied to that device.
 
+![](https://raw.githubusercontent.com/recklessradiance/ellamma/refs/heads/main/IMG_0297.jpeg)
+
 ## Installation
 
 Create the Ellamma directory:
