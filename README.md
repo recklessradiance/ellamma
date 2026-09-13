@@ -25,13 +25,27 @@ The local device handles the terminal interface, session state, and eventually l
 - Interactive terminal interface
 - OpenCode Go API integration
 - GPT-5.6 Luna support
+- Streaming responses
 - Persistent conversation state
 - Persistent session identity
 - Start a new conversation with `/new`
 - Basic command interface
 - API key stored outside Git
 - Low-resource design
-- Single canonical runtime script
+- Modular runtime split across small POSIX shell files
+
+## Project Structure
+
+    ellamma/
+    ├── ellamma.sh       entry point
+    ├── install.sh       install / uninstall helper
+    ├── lib/
+    │   ├── common.sh    shared configuration and state
+    │   ├── session.sh   session state management
+    │   ├── markdown.sh  streaming markdown renderer
+    │   ├── api.sh       remote API calls
+    │   └── ui.sh        banner, commands, interactive loop
+    └── README.md
 
 ## Commands
 
@@ -50,56 +64,80 @@ The local device handles the terminal interface, session state, and eventually l
 - OpenCode Go API access
 - A Unix-like environment capable of running the shell runtime
 
-Ellamma was initially developed and tested on an iPhone 4S running iOS 6.1.3, but the project is not tied to that device.
+Ellamma is designed for any Unix-like environment. Early development was done on a low-end handheld running iOS 6.1.3, but nothing in the runtime depends on that device; it adapts its storage to the host (default `~/.ellamma`).
 
 ![](https://raw.githubusercontent.com/recklessradiance/ellamma/refs/heads/main/IMG_0297.jpeg)
 
 ## Installation
 
-Create the Ellamma directory:
+Ellamma stores its data in a base directory. On most Unix systems this defaults to `~/.ellamma`; the runtime falls back to per-user storage when the default path is not usable, and `ELLAMMA_HOME` overrides it explicitly. Embedded or locked-down deployments may prefer `ELLAMMA_HOME=/var/mobile/.ellamma` (as on the original device).
 
-    mkdir -p /var/mobile/.ellamma/sessions
-    chmod 700 /var/mobile/.ellamma
+Run the installer from the project directory:
+
+    ./install.sh
+
+This copies the runtime to `<base>/bin`, installs a `ellamma` launcher on your PATH (default `~/.local/bin`), and prompts for the API key if none is stored yet. The launcher directory can be changed with `ELLAMMA_BIN`.
+
+To remove the installed runtime (keeping the API key and session state):
+
+    ./install.sh uninstall
+
+Manual install:
+
+    mkdir -p ~/.ellamma/sessions
+    chmod 700 ~/.ellamma
 
 Store the API key:
 
-    printf '%s\n' 'YOUR_API_KEY' > /var/mobile/.ellamma/api_key
-    chmod 600 /var/mobile/.ellamma/api_key
+    printf '%s\n' 'YOUR_API_KEY' > ~/.ellamma/api_key
+    chmod 600 ~/.ellamma/api_key
 
-Place the runtime at:
+Place the runtime somewhere convenient, preserving the layout:
 
-    /var/mobile/.ellamma/ellamma.sh
+    ellamma.sh
+    lib/common.sh
+    lib/session.sh
+    lib/markdown.sh
+    lib/api.sh
+    lib/ui.sh
 
-Make it executable:
+Make the entry point executable:
 
-    chmod 755 /var/mobile/.ellamma/ellamma.sh
+    chmod 755 ellamma.sh
 
 Start Ellamma:
 
-    cd /var/mobile/.ellamma
     ./ellamma.sh
-
-For other Unix-like systems, adapt the storage paths as needed.
 
 ## Configuration
 
-The runtime reads the API key from:
+The runtime reads the API key from the base directory:
 
-    /var/mobile/.ellamma/api_key
+    <base>/api_key
+
+Where `<base>` is `$ELLAMMA_HOME` if set, `~/.ellamma` by default, or the legacy `/var/mobile/.ellamma` when that path is usable.
 
 The key is intentionally excluded from version control.
 
 The current model is configured in the runtime:
 
-    MODEL="gpt-5.6-luna"
+`MODEL` in `lib/common.sh` (or via the `ELLAMMA_MODEL` environment variable).
+
+Additional environment overrides supported by `lib/common.sh`:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `ELLAMMA_HOME` | `~/.ellamma` (legacy: `/var/mobile/.ellamma`) | Runtime data directory |
+| `ELLAMMA_MODEL` | `gpt-5.6-luna` | Model identifier |
+| `ELLAMMA_SESSION` | `ellamma-main` | Initial session name |
 
 ## Persistent Conversations
 
-Ellamma stores the latest response identifier locally.
+Ellamma stores the latest response identifier locally at:
 
-On the original environment:
+    <base>/sessions/<session>
 
-    /var/mobile/.ellamma/sessions/ellamma-main
+On the original environment the default session is `ellamma-main`.
 
 When Ellamma starts again, it loads the saved response identifier and continues the previous conversation.
 
@@ -115,7 +153,7 @@ The API key should never be committed to Git.
 
 The local key file should use restrictive permissions:
 
-    chmod 600 /var/mobile/.ellamma/api_key
+    chmod 600 <base>/api_key
 
 The repository excludes:
 
@@ -176,7 +214,7 @@ Conversation state and future local tools remain on the device rather than requi
 - [x] API connectivity
 - [x] Interactive terminal
 - [x] Persistent sessions
-- [ ] Streaming responses
+- [x] Streaming responses
 - [ ] Local tool protocol
 - [ ] Shell command execution
 - [ ] File operations
