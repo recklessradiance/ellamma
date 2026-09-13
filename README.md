@@ -30,6 +30,7 @@ The local device handles the terminal interface, session state, and eventually l
 - Persistent session identity
 - Start a new conversation with `/new`
 - Basic command interface
+- Internet tool calling (web search, URL fetch)
 - API key stored outside Git
 - Low-resource design
 - Modular runtime split across small POSIX shell files
@@ -44,6 +45,7 @@ The local device handles the terminal interface, session state, and eventually l
     │   ├── session.sh   session state management
     │   ├── markdown.sh  streaming markdown renderer
     │   ├── api.sh       remote API calls
+    │   ├── tools.sh     internet tool runner (search, fetch)
     │   └── ui.sh        banner, commands, interactive loop
     └── README.md
 
@@ -99,6 +101,7 @@ Place the runtime somewhere convenient, preserving the layout:
     lib/session.sh
     lib/markdown.sh
     lib/api.sh
+    lib/tools.sh
     lib/ui.sh
 
 Make the entry point executable:
@@ -222,7 +225,7 @@ Conversation state and future local tools remain on the device rather than requi
 - [ ] Device-aware system context
 - [ ] Conversation history
 - [ ] Memory
-- [ ] Internet tools
+- [x] Internet tools
 - [ ] Calendar integration
 - [ ] RSS/news
 - [ ] Weather

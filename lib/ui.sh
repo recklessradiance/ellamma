@@ -1,8 +1,8 @@
 #!/bin/sh
 banner()
 {
-	printf "\nEllamma v%s\n" "$VERSION"
-	printf "%s %s | %s\n" "$(uname -s)" "$(uname -m)" "$MODEL"
+printf "\nEllamma v%s\n" "$VERSION"
+	printf "%s %s | %s | %s\n" "$(uname -s)" "$(uname -m)" "$MODEL" "$(date '+%a %b %d %Y')"
 	printf "Type /help or /quit\n\n"
 }
 

@@ -7,6 +7,7 @@ else
 	BASE="$HOME/.ellamma"
 fi
 MODEL="${ELLAMMA_MODEL:-gpt-5.6-luna}"
+SYSCTX="You are Ellamma, a minimal terminal AI agent running on $(uname -s) $(uname -m). Today's date is $(date '+%A, %B %d, %Y')."
 SESSION_NAME="${ELLAMMA_SESSION:-ellamma-main}"
 STATE_DIR="$BASE/sessions"
 STATE="$STATE_DIR/$SESSION_NAME"
